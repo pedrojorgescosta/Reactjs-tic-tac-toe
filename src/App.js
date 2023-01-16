@@ -20,10 +20,17 @@ export default function Game() {
 
   const moves = history.map((_squares, move) => {
     let description;
-    if (move > 0 && move === currentMove) {
-      description = "You are at move #" + move;
-    } else if (move > 0) {
-      description = "Go to move #" + move;
+    if (move > 0) {
+      const moveIndex = _squares.findIndex(
+        (e, i) => e !== history[move - 1][i]
+      );
+      const currXXCoord = (moveIndex % 3) + 1; //Add one so columns start at 1
+      const currYYCoord = moveIndex < 3 ? 1 : moveIndex < 6 ? 2 : 3;
+      if (move === currentMove) {
+        description = `You are at move #${move}, last move (${currXXCoord}, ${currYYCoord})`;
+      } else {
+        description = `Go to move #${move} at (${currXXCoord}, ${currYYCoord})`;
+      }
     } else {
       description = "Go to game start";
     }
