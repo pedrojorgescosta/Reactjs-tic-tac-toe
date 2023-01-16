@@ -18,7 +18,7 @@ export default function Game() {
     setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
+  const moves = history.map((_squares, move) => {
     let description;
     if (move > 0 && move === currentMove) {
       description = "You are at move #" + move;
@@ -59,8 +59,9 @@ export default function Game() {
 function Board({ xIsNext, squares, onPlay }) {
   const winner = calculateWinner(squares);
   let status;
-  if (winner) {
-    status = "Winner: " + winner;
+  if (winner === "Draw") status = winner;
+  else if (winner) {
+    status = "Winner: " + squares[winner[0]];
   } else {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
@@ -87,14 +88,18 @@ function Board({ xIsNext, squares, onPlay }) {
           <div className="board-row">
             {Array(3)
               .fill()
-              .map((es, iS) => (
-                <Square
-                  key={"s" + (3 * iR + iS)}
-                  value={squares[3 * iR + iS]}
-                  onSquareClick={() => handleClick(3 * iR + iS)}
-                  winnerSquares={winner}
-                />
-              ))}
+              .map((es, iS) => {
+                const num = 3 * iR + iS;
+                return (
+                  <Square
+                    key={"s" + num}
+                    id={num}
+                    value={squares[num]}
+                    onSquareClick={() => handleClick(num)}
+                    winnerSquares={winner}
+                  />
+                );
+              })}
           </div>
         ))}
     </>
@@ -110,20 +115,31 @@ function calculateWinner(squares) {
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6]
+    [2, 4, 6],
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return lines[i];
     }
   }
+  const emptySquares = squares.filter((e) => !e).length;
+  if (!emptySquares) return "Draw";
   return null;
 }
 
-function Square({ value, onSquareClick }) {
+function Square({ id, value, onSquareClick, winnerSquares }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button
+      className="square"
+      alt={"Winners" + winnerSquares}
+      style={{
+        backgroundColor:
+          winnerSquares && winnerSquares.includes(id) ? "green" : "",
+        color: winnerSquares && winnerSquares.includes(id) ? "white" : "",
+      }}
+      onClick={onSquareClick}
+    >
       {value}
     </button>
   );
